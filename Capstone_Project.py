@@ -204,3 +204,35 @@ hospital_data.write.format("redshift").option("url", "jdbc:redshift:redshift-clu
     option("password", "Test456").mode("overwrite").save()
 
 
+
+from pyspark.sql import SparkSession
+# Initialize a Spark session
+spark = SparkSession.builder \
+    .appName("Read from Redshift") \
+    .getOrCreate()
+
+# Set the AWS access and secret keys for S3
+spark.sparkContext._jsc.hadoopConfiguration().set("fs.s3a.access.key", "AKIAZ5Z3KDW5NOTW2BK3")
+spark.sparkContext._jsc.hadoopConfiguration().set("fs.s3a.secret.key", "17SHWFyoEBw8eQusNXA/SpX7FHCZ98wVXEja9wQf")
+
+# Define the Redshift connection properties
+redshift_url = "jdbc:redshift://YOUR_REDSHIFT_ENDPOINT:5439/YOUR_DATABASE"
+redshift_properties = {
+    "user": "YOUR_REDShift_USERNAME",
+    "password": "YOUR_REDSHIFT_PASSWORD",
+    "driver": "com.amazon.redshift.jdbc42.Driver"
+}
+
+# Define the query to retrieve data from Redshift
+query = "SELECT * FROM your_table_name"
+
+# Read data from Redshift into a DataFrame
+redshift_data = spark.read \
+    .jdbc(url=redshift_url, table=query, properties=redshift_properties)
+
+# Show the data or perform further operations
+redshift_data.show()
+
+# Stop the Spark session when done
+spark.stop()
+
